@@ -1,7 +1,8 @@
 # mapdoc
 
 There have been plugins in the past to *attach* documentation to your mappings.
-Some that I know of are:
+Some that I know of are, mentioned here both as alternatives and as possible
+future references:
 
     * [vim-follow-my-lead](https://github.com/ktonga/vim-follow-my-lead)
     * [ctrlp-leader-guide](https://github.com/tracyone/ctrlp-leader-guide)
