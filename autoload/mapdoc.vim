@@ -199,7 +199,7 @@ function! s:render_doc(mapdict, layout)
 endfunction
 
 
-function! s:bufcreate(mapdict)
+function! s:bufcreate(mapdict, keys_typed)
     let s:state.winview = winsaveview()
     let s:state.winrest = winrestcmd()
     let layout = s:layout_for(a:mapdict)
@@ -217,10 +217,10 @@ function! s:bufcreate(mapdict)
     call append(0, lines)
     setlocal nomodifiable
 
-    call s:main_loop(a:mapdict)
+    call s:main_loop(a:mapdict, a:keys_typed)
 endfunction
 
-function! s:main_loop(mapdict)
+function! s:main_loop(mapdict, keys_typed)
     redraw
 
     let rawkey = mapdoc#utils#getraw()
@@ -231,11 +231,10 @@ function! s:main_loop(mapdict)
         if !has_key(a:mapdict, rawkey)
             echoerr 'No such mapping:' rawkey
         elseif fsel.type =~ 'group'
-            call s:bufcreate(fsel.mappings)
+            call s:bufcreate(fsel.mappings, a:keys_typed.rawkey)
         elseif fsel.type == 'key'
             redraw
-            " call feedkeys(s:vis.s:reg.s:count, 'ti')
-            unsilent echom call(g:mapdoc_formatter, [fsel])
+            call feedkeys(v:register.v:count.a:keys_typed.rawkey, 'mt')
         endif
     endif
 endfunction
@@ -251,5 +250,5 @@ endfunction
 function! mapdoc#display(...)
     let prefix = get(a:000, 0, '')
     let flatten = get(a:000, 1, 0)
-    call s:bufcreate(mapdoc#(prefix, flatten))
+    call s:bufcreate(mapdoc#(prefix, flatten), mapdoc#utils#char2raw(prefix))
 endfunction

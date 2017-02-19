@@ -11,6 +11,10 @@ Some that I know of are:
 This plugin is mostly an amalgamation of all of them.  However, the main
 inspiration has been [vim-leader-guide].
 
+It's main limitation, compared to the original so to speak, is the fact that it
+only works for normal mode mappings.  I don't care enough to add support for
+visual mode ones.  Still, it's on the TODO list.
+
 There's not much that I can say.  I wrote this mostly for myself.  Still, if
 you use this and find some bug, or want some feature open an Issue.  I'll
 probably fix/implement it.
@@ -18,3 +22,4 @@ probably fix/implement it.
 # TODO
 
     * Add docs
+    * Support visual mode mappings
