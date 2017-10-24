@@ -35,7 +35,7 @@ function! s:add_map_to_dict(dict, map, info)
         let curlevel = s:add_group_to_dict(curlevel, raw, key)
     endfor
 
-    if len(keys)
+    if !empty(keys)
         let lastkey = keys[-1]
         let lastraw = mapdoc#utils#char2raw(lastkey)
         call s:add_key_to_dict(curlevel, lastraw, lastkey, a:info)
@@ -44,8 +44,7 @@ function! s:add_map_to_dict(dict, map, info)
 endfunction
 
 function! s:flatten_dict(dict)
-    let mappings = items(a:dict)
-    for [r1, k1] in mappings
+    for [r1, k1] in items(a:dict)
         if k1.type == 'key+group'
             for [r2, k2] in items(k1.mappings)
                 let k2.key = k1.key . k2.key
@@ -69,8 +68,7 @@ function! s:all_mappings(prefix, ...)
     redir END
 
     let maps = {}
-    let rawmaplines = split(rawmaps, '\n')
-    for m in rawmaplines
+    for m in split(rawmaps, '\n')
         " The mode takes at most 3 chars, meaning that there may be no space
         " between the mode and the key itself, meaning `split()` on its own
         " may not separate mode from key.
@@ -226,7 +224,7 @@ function! s:main_loop(mapdict, keys_typed)
     let rawkey = mapdoc#utils#getraw()
     call s:winclose()
 
-    if len(rawkey)
+    if !empty(rawkey)
         let fsel = get(a:mapdict, rawkey)
         if !has_key(a:mapdict, rawkey)
             echoerr 'No such mapping:' rawkey

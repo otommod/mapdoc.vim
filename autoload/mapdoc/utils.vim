@@ -1,11 +1,11 @@
 function! mapdoc#utils#char2raw(char)
-    let leader = exists('mapleader') && len(mapleader) ? mapleader : '\'
-    let localleader = exists('maplocalleader') && len(maplocalleader) ? maplocalleader : leader
+    let leader = exists('mapleader') && !empty(mapleader) ? mapleader : '\'
+    let localleader = exists('maplocalleader') && !empty(maplocalleader) ? maplocalleader : leader
 
     let char = escape(a:char, '"\')
     let char = substitute(char, '\c<leader>', leader, 'g')
     let char = substitute(char, '\c<localleader>', localleader, 'g')
-    let char = substitute(char, '<\(.\{-1,\}\)>', '\\<\1>', 'g')
+    let char = substitute(char, '\ze<.\{-1,}>', '\\', 'g')
     return eval('"'.char.'"')
 endfun
 
@@ -24,7 +24,7 @@ function! mapdoc#utils#splitmap(map)
             let key = '<A-'.nr2char(xor(keynr, 128)).'>'
         elseif key == '<'              " special key, like <F10>
             let mch = matchstr(a:map, '<.\{-1,}>', i)
-            if len(mch)
+            if !empty(mch)
                 let key = mch
                 let i += strchars(mch) - 1
             endif
