@@ -58,3 +58,8 @@ function! mapdoc#utils#getraw()
 
     return rawkey
 endfunction
+
+
+function! mapdoc#utils#as_list(var)
+    return type(a:var) == type([]) ? a:var : [a:var]
+endfunction

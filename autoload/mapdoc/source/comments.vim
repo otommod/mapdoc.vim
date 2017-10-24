@@ -8,8 +8,8 @@ function! s:scripts()
 endfunction
 
 function! s:script_sid(file)
-    return s:scripts().index(fnamemodify(a:file, ':p'))
-endif
+    return index(s:scripts(), fnamemodify(a:file, ':p')) + 1
+endfunction
 
 function! s:all_map_comments(file)
     let docs = {}
@@ -32,13 +32,11 @@ let s:VIMRC_MAPS = s:all_map_comments($MYVIMRC)
 
 function! mapdoc#source#comments#for(keydef)
     if a:keydef.type =~ 'group'
-        return 'group'
     elseif a:keydef.info.sid == s:VIMRC_SID
-        let matching_map = match(items(s:VIMRC_MAPS), (a:keydef.info.lhs))
+        let matching_map = match(keys(s:VIMRC_MAPS), a:keydef.info.lhs)
         if matching_map >= 0
-            return values(s:VIMRC_MAPS)[matching_map]
+            return [1, values(s:VIMRC_MAPS)[matching_map]]
         endif
-    else
-        return substitute(a:keydef.info.rhs, '\c<cr>$', '', '')
     endif
+    return [0, '']
 endfunction

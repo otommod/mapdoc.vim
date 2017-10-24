@@ -10,12 +10,7 @@ function s:find_docs(dict, keys)
 endfunction
 
 function! mapdoc#source#manual#for(keydef)
-    if a:keydef.type =~ 'group'
-        let [found, doc] = s:find_docs(g:mapdoc_docs, [a:keydef.key])
-        return found ? doc : 'group'
-    else
-        let keys = mapdoc#utils#splitmap(a:keydef.info.lhs)
-        let [found, doc] = s:find_docs(g:mapdoc_docs, keys)
-        return found ? doc : substitute(a:keydef.info.rhs, '\c<cr>$', '', '')
-    endif
+    return s:find_docs(g:mapdoc_docs, a:keydef.type =~ 'group'
+                \ ? [a:keydef.key]
+                \ : mapdoc#utils#splitmap(a:keydef.info.lhs))
 endfunction

@@ -140,7 +140,16 @@ endfunction
 
 
 function! s:map_display(keydef)
-    let desc = call(g:mapdoc_source, [a:keydef])
+    let found = 0
+    for src in mapdoc#utils#as_list(g:mapdoc_source)
+        let [found, desc] = call(src, [a:keydef])
+        if found | break | endif
+    endfor
+    if !found
+        let desc = a:keydef.type =~ 'group'
+                    \ ? 'group'
+                    \ : substitute(a:keydef.info.rhs, '\c<cr>$', '', '')
+    endif
     return printf('[%s] %s', a:keydef.key, desc)
 endfunction
 
