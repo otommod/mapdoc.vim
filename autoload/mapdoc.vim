@@ -140,7 +140,7 @@ endfunction
 
 
 function! s:map_display(keydef)
-    let desc = call(g:mapdoc_formatter, [a:keydef])
+    let desc = call(g:mapdoc_source, [a:keydef])
     return printf('[%s] %s', a:keydef.key, desc)
 endfunction
 
