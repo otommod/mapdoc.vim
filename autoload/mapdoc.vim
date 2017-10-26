@@ -45,15 +45,18 @@ endfunction
 
 function! s:flatten_dict(dict)
     for [r1, k1] in items(a:dict)
-        if k1.type == 'key+group'
+        if k1.type =~ 'group'
+            call s:flatten_dict(k1.mappings)
             for [r2, k2] in items(k1.mappings)
                 let k2.key = k1.key . k2.key
                 let a:dict[r1.r2] = k2
             endfor
-            let k1.type = 'key'
-            unlet k1.mappings
-        elseif k1.type == 'group'
-            call s:flatten_dict(k1.mappings)
+            if k1.type == 'key+group'
+                let k1.type = 'key'
+                unlet k1.mappings
+            else
+                unlet a:dict[r1]
+            endif
         endif
     endfor
     return a:dict
@@ -104,15 +107,10 @@ let s:state = {
             \ 'winrest': '',
             \ }
 
-function! s:winopen(vertical, size)
-    if a:vertical
-        let mode = 'vertical'
-        let openpos = g:mapdoc_left ? 'topleft' : 'botright'
-    else
-        let mode = ''
-        let openpos = g:mapdoc_left ? 'leftabove' : 'rightbelow'
-    endif
-    noautocmd exec 'silent keepalt' openpos mode a:size 'split' 'MapDoc'
+function! s:winopen(opts)
+    let [vert, pos, size] = [a:opts.vert, a:opts.position, a:opts.win_size]
+    exec 'silent keepalt' vert pos size 'split' 'MapDoc'
+    exec 'silent' vert 'resize' size
 
     if bufexists(s:state.bufnr)
         " noautocmd exec 'buffer' s:state.bufnr
@@ -155,24 +153,31 @@ endfunction
 
 function! s:layout_for(mapdict)
     let items = len(a:mapdict)
-    let lens = map(values(a:mapdict), 'strdisplaywidth(s:map_display(v:val))')
-    let maxlen = max(lens) + 5  " TODO: make this configurable
+    let widths = map(values(a:mapdict), 'strdisplaywidth(s:map_display(v:val))')
+    let maxwidth = max(widths) + 5  " TODO: make this configurable
 
-    if g:mapdoc_vertical
+    let is_vert = (g:mapdoc_position == 'left' || g:mapdoc_position == 'right')
+    let position = (g:mapdoc_position == 'up' || g:mapdoc_position == 'left')
+                \ ? 'topleft'
+                \ : 'botright'
+
+    if is_vert
         let rows = winheight(0) - 2
         let cols = items / rows + (items != rows)
-        let col_size = maxlen
-        let win_size = cols * col_size
+        let col_width = maxwidth
+        let win_size = cols * col_width
     else
-        let cols = winwidth(0) / maxlen
+        let cols = winwidth(0) / maxwidth
         let rows = items / cols + (fmod(items, cols) > 0)
-        let col_size = winwidth(0) / cols
+        let col_width = winwidth(0) / cols
         let win_size = rows
     endif
 
     return {'rows': rows - 1,
           \ 'cols': cols,
-          \ 'col_size': col_size,
+          \ 'col_width': col_width,
+          \ 'vert': is_vert ? 'vertical' : '',
+          \ 'position': position,
           \ 'win_size': win_size}
 endfunction
 
@@ -188,7 +193,7 @@ function! s:render_doc(mapdict, layout)
     let maps = sort(values(a:mapdict), 's:compare_keydef')
     for m in maps
         let dispstr = s:map_display(m)
-        let fillspace = a:layout.col_size - strdisplaywidth(dispstr)
+        let fillspace = a:layout.col_width - strdisplaywidth(dispstr)
         call add(row, dispstr)
 
         if col >= a:layout.cols - 1
@@ -210,18 +215,11 @@ function! s:bufcreate(mapdict, keys_typed)
     let s:state.winview = winsaveview()
     let s:state.winrest = winrestcmd()
     let layout = s:layout_for(a:mapdict)
-    let lines = s:render_doc(a:mapdict, layout)
 
-    " if g:leaderGuide_max_size
-    "     let layout.win_size = min([g:leaderGuide_max_size, layout.win_size])
-    " endif
-
-    " FIXME: when there is only a single line in the buffer it is not shown
-    let layout.win_size += 1
-    call s:winopen(g:mapdoc_vertical, layout.win_size)
+    call s:winopen(layout)
 
     setlocal modifiable
-    call append(0, lines)
+    call append(0, s:render_doc(a:mapdict, layout))
     setlocal nomodifiable
 
     call s:main_loop(a:mapdict, a:keys_typed)

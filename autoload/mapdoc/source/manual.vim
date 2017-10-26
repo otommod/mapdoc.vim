@@ -1,3 +1,7 @@
+if !exists('g:mapdoc#source#manual#docs')
+    let g:mapdoc#source#manual#docs = {}
+endif
+
 function s:find_docs(dict, keys)
     let curdict = a:dict
     for k in a:keys
@@ -10,7 +14,8 @@ function s:find_docs(dict, keys)
 endfunction
 
 function! mapdoc#source#manual#for(keydef)
-    return s:find_docs(g:mapdoc_docs, a:keydef.type =~ 'group'
+    return s:find_docs(g:mapdoc#source#manual#docs,
+                \ a:keydef.type =~ 'group'
                 \ ? [a:keydef.key]
                 \ : mapdoc#utils#splitmap(a:keydef.info.lhs))
 endfunction
