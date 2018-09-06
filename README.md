@@ -8,6 +8,8 @@ future references:
   * [ctrlp-leader-guide](https://github.com/tracyone/ctrlp-leader-guide)
   * [vim-leader-guide](https://github.com/hecal3/vim-leader-guide)
   * [vim-showmap](https://github.com/fcpg/vim-showmap)
+  * [vim-which-key](https://github.com/liuchengxu/vim-which-key)
+  * [vim-cheat40](https://github.com/lifepillar/vim-cheat40)
 
 This plugin is mostly an amalgamation of all of them.  However, the main
 inspiration has been [vim-leader-guide].
